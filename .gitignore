@@ -4,3 +4,8 @@ npm-debug.log*
 .DS_Store
 e2e*.js
 data/
+.env
+.env.*
+*.bak
+*.local
+coverage/
