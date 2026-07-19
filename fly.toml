@@ -1,0 +1,19 @@
+# Fly.io 配置 —— 用 `fly launch --copy-config` 或 `fly deploy` 部署
+app = "texas-holdem-friends"
+primary_region = "hkg"  # 香港节点，离国内近、延迟低
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
+    method = "get"
+    path = "/healthz"

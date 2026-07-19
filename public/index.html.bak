@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a5233" />
+  <title>德州扑克 · 好友房</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 登录 / 注册 -->
+  <div id="auth" class="screen">
+    <div class="lobby-card">
+      <h1>🂡 德州扑克 <span class="sub">好友房</span></h1>
+      <p class="tip">输入昵称 + 密码（+ 邀请码）。已注册就直接登录，没注册就用邀请码自动建号，一步到位。</p>
+      <label>昵称</label>
+      <input id="authName" placeholder="例如：小明" maxlength="12" />
+      <label>密码（可留空，仅用于换设备登录）</label>
+      <input id="authPass" type="password" placeholder="留空则免密码" maxlength="32" />
+      <label>邀请码（新朋友向房主索取；已有账号可留空）</label>
+      <input id="authInvite" placeholder="例如：A1B2C3" maxlength="16" style="text-transform:uppercase" />
+      <button id="authBtn" class="primary">进入好友房</button>
+      <div id="authMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <!-- 大厅 -->
+  <div id="lobby" class="screen hidden">
+    <div class="lobby-card">
+      <h1>🂡 德州扑克 <span class="sub">好友房</span></h1>
+      <p class="tip">创建房间后把房间码/链接发给朋友，即可一起在线玩。房间会一直保留，朋友随时能进来。</p>
+      <div class="who" id="who"></div>
+
+      <div class="bot-opts">
+        <div class="bot-title">🤖 人机训练模式（可选）</div>
+        <p class="tip">想一个人练牌？加几个机器人当对手，并开启 AI 教练实时给建议。</p>
+        <div class="row">
+          <label>机器人数量</label>
+          <select id="botCount">
+            <option value="0">0（纯好友房）</option>
+            <option value="1">1 个</option>
+            <option value="2">2 个</option>
+            <option value="3" selected>3 个</option>
+            <option value="4">4 个</option>
+            <option value="5">5 个</option>
+            <option value="6">6 个</option>
+            <option value="7">7 个</option>
+            <option value="8">8 个</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>机器人风格</label>
+          <select id="botProfile">
+            <option value="tight">稳健（紧手，少玩多弃）</option>
+            <option value="balanced" selected>均衡（GTO 风格）</option>
+            <option value="loose">激进（松手，爱加注诈唬）</option>
+          </select>
+        </div>
+        <div class="row check">
+          <label><input type="checkbox" id="coachOn" checked /> 开启 AI 教练实时建议</label>
+        </div>
+      </div>
+
+      <button id="createBtn" class="primary">创建房间</button>
+      <div class="divider"><span>或</span></div>
+      <label>房间码</label>
+      <input id="roomInput" placeholder="4 位房间码" maxlength="4" style="text-transform:uppercase" />
+      <button id="joinBtn">加入房间</button>
+      <div id="lobbyMsg" class="msg"></div>
+      <div class="divider"><span>数据</span></div>
+      <button id="statsBtn" class="ghost">📊 我的战绩</button>
+      <button id="adminBtn" class="ghost hidden">🛡 管理后台</button>
+    </div>
+  </div>
+
+  <!-- 游戏 -->
+  <div id="game" class="screen hidden">
+    <header class="topbar">
+      <div class="room-box">
+        房间 <b id="roomCode">----</b>
+        <button id="copyLink" class="mini">复制邀请链接</button>
+      </div>
+      <div id="status" class="status"></div>
+      <button id="logoutBtn" class="mini ghost">退出账号</button>
+      <button id="leaveBtn" class="mini ghost">离开</button>
+    </header>
+
+    <main class="table-wrap">
+      <div class="table">
+        <div class="pot-center">
+          <div class="pot">🪙 底池 <b id="pot">0</b></div>
+          <div id="board" class="board"></div>
+          <div id="stageLabel" class="stage-label"></div>
+        </div>
+        <div id="seats" class="seats"></div>
+      </div>
+    </main>
+
+    <section class="action-bar">
+      <div id="turnInfo" class="turn-info"></div>
+      <div class="controls">
+        <button id="foldBtn" class="act fold">弃牌</button>
+        <button id="checkBtn" class="act check">过牌</button>
+        <button id="callBtn" class="act call">跟注</button>
+        <div class="betbox">
+          <div class="bet-head">
+            <span id="raiseLabel" class="bet-cur">下注 0</span>
+            <span id="betHint" class="bet-hint"></span>
+          </div>
+          <input id="raiseRange" class="bet-range" type="range" min="0" max="0" value="0" />
+          <div class="chips-row">
+            <button class="chip" data-mult="0.25">¼ 底池</button>
+            <button class="chip" data-mult="0.5">½ 底池</button>
+            <button class="chip" data-mult="0.75">¾ 底池</button>
+            <button class="chip" data-mult="1">1× 底池</button>
+            <button class="chip max" data-mult="allin">全下</button>
+          </div>
+          <div class="bet-actions">
+            <button id="betRaiseBtn" class="act bet">下注</button>
+            <button id="allinBtn" class="act allin">全下</button>
+          </div>
+        </div>
+      </div>
+      <div id="hostBar" class="host-bar hidden">
+        <button id="startBtn" class="primary">开始游戏</button>
+        <button id="nextBtn" class="primary hidden">下一手</button>
+        <button id="addBotBtn" class="ghost">+ 机器人</button>
+      </div>
+
+      <div class="rebuy-bar">
+        <button id="rebuyBtn" class="ghost">💰 补码</button>
+        <div id="rebuyRow" class="rebuy-row hidden">
+          <input id="rebuyInput" type="number" min="1" step="100" value="1000" />
+          <button id="rebuyConfirm" class="primary">确认补码</button>
+          <button id="rebuyCancel" class="ghost">取消</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="sidebar">
+      <aside class="coach-panel" id="coachPanel">
+        <div class="coach-head">
+          <span>🎓 AI 教练</span>
+          <button id="adviceBtn" class="mini">刷新建议</button>
+        </div>
+        <div id="coachBody" class="coach-body">
+          <p class="coach-hint">轮到你时，教练会实时给出建议与 GTO 思路。</p>
+        </div>
+      </aside>
+
+      <aside class="reads-panel" id="readsPanel">
+        <div class="reads-head">
+          <span>🕵️ 对手读牌</span>
+        </div>
+        <div id="readsBody" class="reads-body">
+          <p class="reads-hint">进入牌局后，这里会根据每个对手的<b>下注行为</b>实时推断其牌力范围，并教你如何判断。</p>
+        </div>
+      </aside>
+
+      <aside class="log-panel">
+        <h3>操作记录</h3>
+        <ul id="log"></ul>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 战绩 -->
+  <div id="stats" class="screen hidden">
+    <div class="lobby-card wide">
+      <h1>📊 我的战绩</h1>
+      <p class="tip">系统会自动记录你打过的每一手牌（盈亏、胜率、入池率、激进度、牌型），并据此给你建议。</p>
+      <div id="statsBody" class="stats-body"></div>
+      <button id="statsBack" class="ghost">返回大厅</button>
+    </div>
+  </div>
+
+  <!-- 管理后台 -->
+  <div id="admin" class="screen hidden">
+    <div class="lobby-card wide">
+      <h1>🛡 管理后台</h1>
+      <p class="tip">你是管理员：只有你能生成邀请码或创建账号，别人才能注册加入。</p>
+
+      <div class="admin-sec">
+        <h3>① 生成邀请码（发给朋友自行注册）</h3>
+        <button id="genInviteBtn" class="primary">生成邀请码</button>
+        <div id="inviteCodeOut" class="invite-code hidden"></div>
+        <button id="copyInviteBtn" class="mini hidden">复制邀请码</button>
+      </div>
+
+      <div class="admin-sec">
+        <h3>② 直接创建账号（替朋友建好，把昵称告诉他）</h3>
+        <div class="row">
+          <input id="newAccName" placeholder="昵称" maxlength="12" />
+          <input id="newAccPass" type="password" placeholder="密码(可留空)" maxlength="32" />
+          <button id="createAccBtn" class="primary">创建</button>
+        </div>
+      </div>
+
+      <div class="admin-sec">
+        <h3>③ 账号列表</h3>
+        <div id="acctBody" class="acct-body"></div>
+      </div>
+
+      <button id="adminBack" class="ghost">返回大厅</button>
+    </div>
+  </div>
+
+  <script src="client.js"></script>
+</body>
+</html>

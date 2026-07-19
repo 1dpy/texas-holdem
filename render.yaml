@@ -1,0 +1,13 @@
+# Render Blueprint —— 在 Render 上一键部署（免费层，无需绑卡）
+# 用法：把项目推到 GitHub，然后在 Render → New → Blueprint 选中该仓库即可
+services:
+  - type: web
+    name: texas-holdem
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
