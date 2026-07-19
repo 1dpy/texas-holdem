@@ -230,6 +230,13 @@ node test/engine.test.js   # 运行引擎单元测试（20 项）
 
 ---
 
+## 部署状态
+
+- 线上 Demo 运行最新 `main` 分支代码，已包含**隐含赔率算法**（`computeImpliedOdds`）、边池拆分、蒙特卡洛胜率估计等全部特性，并通过 20 项引擎单元测试。
+- Railway 项目：`texas-holdem-friends`（production 环境），由 GitHub 仓库 `1dpy/texas-holdem` 自动部署。
+
+---
+
 ## 扩展方向
 
 - 锦标赛模式（盲注递增、淘汰赛）
